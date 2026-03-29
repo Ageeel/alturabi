@@ -1,0 +1,302 @@
+#:import Update form.Update
+<EmptyLender@MDFloatLayout>:
+	size_hint:1, None
+	height:"350dp"
+
+	MDIcon:
+		size_hint_y :None
+		icon :"bank"
+		font_size:"50sp"
+		color:"#cccccc"
+		pos_hint:None, None
+		pos:470, 120
+
+	MDLabel:
+		theme_icon_color:"Custom"
+		width:root.width
+		halign :"center"
+		text : root.text
+		color:"gray"
+		font_name:"ar"
+		font_size:35
+
+<EmptyDebtor@MDFloatLayout>:
+    size_hint:1, None
+    height: "350dp"
+    
+    MDIcon:
+    	size_hint_y :None
+		icon :"bank"
+		font_size:"50sp"
+		color:"#cccccc"
+		pos_hint:None, None
+		pos:470, 120
+
+    MDLabel:
+    	theme_icon_color:"Custom"
+    	width:root.width
+		halign :"center"
+		text : root.text
+		color:"gray"
+		font_name:"ar"
+		font_size:35
+
+<EmptyFinished@MDFloatLayout>:
+	size_hint:1, None
+	height:"275dp"
+
+	MDIcon:
+		size_hint_y :None
+		icon :"check-circle"
+		font_size:"50sp"
+		color:"#cccccc"#"#999950"
+		pos_hint:None, None
+		pos:470, 120
+
+	MDLabel:
+		theme_icon_color:"Custom"
+		width:root.width
+		halign :"center"
+		text : root.text
+		color:"gray"
+		font_name:"ar"
+		font_size:35
+
+<BarLabel@MDLabel>:
+	halign :"center"
+	font_style:"H4"
+	color :"white"
+	font_name: "num"
+
+<DeleteConfirm>:
+	orientation :"vertical"
+	size_hint_y:None
+	height: "80dp"
+	padding :0, 0, 0, 270
+	spacing :0
+
+	MDLabel:
+		font_name :"ar"
+		halign :"center"
+		text:ar("هل أنت متأكد من عملية الحذف؟")
+		color:"#CF7777"
+
+	MDGridLayout:
+		cols:2
+		rows:1
+		padding :100
+		spacing :100
+
+		MDRectangleFlatButton:
+			text:ar("لا")
+			font_name :"ar"
+			text_color:"#CF7777"
+			on_release :app.close_delete_confirmation()
+
+		MDRectangleFlatButton:
+			text:ar("نعم")
+			font_name :"ar"
+			text_color:"#CF7777"
+			on_release:app.delete_item(app.card_to_delete)
+
+<Card>:
+	orientation :"horizontal"
+	padding :dp(12)
+	spacing :dp(10)
+	size_hint_y :None
+	height :310
+	radius :[20]
+	md_bg_color :1, 1, 1, 1
+	on_release :Update.open_update_form(self, self, app.current_list)
+
+	MDIconButton:
+		icon:"delete"
+		theme_icon_color:"Custom"
+		icon_color:(.7, 0.15, 0.1, .3)
+		pos_hint :{"center_y":.5}
+		on_release:app.confirm_delete(root)
+
+	BoxLayout:
+		orientation :"vertical"
+		size_hint_x:1
+		padding :10
+		spacing :10
+		
+		
+		MDLabel:
+			id:person
+			font_size :43
+			font_name:"ar"
+			halign :"right"
+			bold:True
+			color: "#CF7777"
+			size_hint_y :None
+			height: self.texture_size[1]
+			text_size: self.width, None
+
+		MDLabel:
+            id:amount
+            font_name: "num"
+            halign: "right"
+            size_hint_y: None
+            height: self.texture_size[1]
+            text_size: self.width, None
+            color: "#CBAC18"
+
+		MDLabel:
+            id: date
+            font_name: "ar"
+            font_size:34
+            halign: "right"
+            size_hint_y: None
+            height: self.texture_size[1]
+            text_size: self.width, None
+            color: "#596650"
+           
+			
+MDBoxLayout:
+	orientation : "vertical"
+	size: root.width, root.height
+	# header
+	MDTopAppBar:
+		size_hint_y:0.15
+		padding :0, 0, 0, 60
+		pos_hint :{"top": 1 }
+		md_bg_color :"#F95DB1"
+
+		MDGridLayout:
+			cols:2
+			rows:1
+			
+			BarLabel:
+				id:left_sum		
+	
+			BarLabel:
+				id:right_sum
+		
+	# home screen 
+	MDScreen:
+	    name : "home_screen"
+
+	    MDBottomNavigation:
+	    	id:bottom_nav
+	    	text_color_active:"black"
+	    	text_color_normal:"gray"
+	    	selected_color_background:"#F4D995"
+	    	font_name :"ar"
+
+	    	MDBottomNavigationItem:
+			    id:lends_nav
+			    name: 'lenders'
+			    text: app.lender_text
+			    icon: 'bank'
+			    on_tab_release: app.lenders_list()
+
+			    MDScrollView:
+				    MDList:
+						id:lends
+						padding :dp(10)
+						spacing :dp(10)
+						adaptive_height:True
+
+			MDBottomNavigationItem:
+				id:finished_nav
+				name:"finished"
+				text:ar("مكتمل")
+				icon :"check-circle"
+				on_tab_release:
+					app.load_data("debtors", True)
+					app.current_list = "debtors"
+
+				MDGridLayout:
+					cols:1
+					rows:2
+					spacing:10
+					padding:10
+
+					MDCard:
+				    	size_hint:1, None
+				    	height:200
+
+				    	MDGridLayout:
+				    		cols:2
+				    		rows:1
+
+				    		MDFlatButton:
+				    			id:finished_lends
+				    			size_hint :1, 1
+				    			font_name:"ar"
+				    			theme_text_color:"Custom"
+				    			text_color:"#2F0C0B"
+				    			on_press:app.finished_list("lenders")
+
+				    		MDFlatButton:
+				    			id:finished_debts
+				    			size_hint :1, 1
+				    			font_name:"ar"
+				    			theme_text_color:"Custom"
+				    			text_color:"#2F0C0B"
+				    			md_bg_color:"#F4D995"
+				    			on_press:app.finished_list("debtors")
+				    	
+					MDScrollView:
+						MDList:
+							id:finished
+							padding:dp(10)
+							spacing:dp(10)
+							adaptive_height:True
+
+	        MDBottomNavigationItem:
+	            id:debts_nav
+	            name: 'debtors'
+	            text:app.debtor_text
+	            on_tab_release:app.load_data("debtors")
+	            icon: 'bank'	            
+	            
+	            MDScrollView:
+					MDList:
+						id:debtors
+						padding:dp(10)
+						spacing:dp(10)
+						adaptive_height:True
+
+		MDCard:
+	        id: badge_0
+	        size_hint: None, None
+	        size: "20dp", "20dp"
+	        radius: [50]
+	        md_bg_color: (1, 0.35, 0.31, 1)
+	        opacity: 0
+
+	        MDLabel:
+	            id: badge_label_0
+	            text: "0"
+	            halign: "center"
+	            valign: "middle"
+	            theme_text_color: "Custom"
+	            text_color: 1,1,1,1
+	            font_style: "Caption"
+
+		MDCard:
+	        id: badge_1
+	        size_hint: None, None
+	        size: "20dp", "20dp"
+	        radius: [50]
+	        md_bg_color: (1, 0.35, 0.31, 1)
+	        opacity: 0
+
+	        MDLabel:
+	            id: badge_label_1
+	            text: "0"
+	            halign: "center"
+	            valign: "middle"
+	            theme_text_color: "Custom"
+	            text_color: 1,1,1,1
+	            font_style: "Caption"
+   
+		MDFloatingActionButton:
+			icon:"plus"
+			type: "standard" #large small
+			text_color:"white"
+			pos_hint :{"right":0.935, "y":0.15}
+			on_release:app.add_new()
