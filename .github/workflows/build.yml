@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches: [ main ]
@@ -8,52 +9,43 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-uses: actions/checkout@v2
+      - name: Checkout source
+        uses: actions/checkout@v2
 
-      used to cache dependencies with a timeout
-name: Get Date
+      - name: Get Date
         id: get-date
-        run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
+        run: echo "date=$(date -u +'%Y%m%d')" >> $GITHUB_OUTPUT
 
-name: Cache Buildozer global directory
+      - name: Cache Buildozer global directory
         uses: actions/cache@v2
         with:
           path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-uses: actions/cache@v2
+      - name: Cache Buildozer directory
+        uses: actions/cache@v2
         with:
           path: .buildozer
           key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
-name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: stable
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip zip unzip openjdk-11-jdk
+          pip install --upgrade pip
+          pip install buildozer cython
 
-name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
-      - name: First build to create .buildozer
+      - name: First build (prepare environment)
         run: |
           buildozer android debug || true
 
-      - name: Fix AIDL inside Buildozer SDK
+      - name: Fix SDK licenses and install tools
         run: |
           SDK_PATH="$HOME/.buildozer/android/platform/android-sdk"
 
-          yes | $SDK_PATH/tools/bin/sdkmanager \
-            --sdk_root=$SDK_PATH \
-            --licenses || true
+          yes | $SDK_PATH/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-          $SDK_PATH/tools/bin/sdkmanager \
-            --sdk_root=$SDK_PATH \
+          $SDK_PATH/cmdline-tools/latest/bin/sdkmanager \
             "platform-tools" \
             "platforms;android-29" \
             "build-tools;29.0.0"
@@ -61,3 +53,9 @@ name: Upload artifacts
       - name: Final APK build
         run: |
           buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: apk
+          path: bin/*.apk
