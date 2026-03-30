@@ -9,7 +9,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,ttf,db
 
 version = 0.1
-requirements = python3,kivy,kivymd,arabic-reshaper,python-bidi
+requirements = python3,hostpython3,kivy,kivymd,pillow,arabic-reshaper,python-bidi
 android.permissions = INTERNET,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
  
 
