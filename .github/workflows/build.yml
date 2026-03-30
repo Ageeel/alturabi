@@ -1,8 +1,8 @@
-name: Build APK (Kivy / Buildozer)
+name: Build APK with Buildozer
 
 on:
 push:
-branches: [ main ]
+branches: [ "main" ]
 workflow_dispatch:
 
 jobs:
@@ -11,59 +11,54 @@ runs-on: ubuntu-22.04
 
 ```
 steps:
-- name: 📥 Checkout
-  uses: actions/checkout@v3
+  - name: 📥 Checkout repository
+    uses: actions/checkout@v4
 
-- name: 🐍 Set up Python
-  uses: actions/setup-python@v4
-  with:
-    python-version: 3.10
+  - name: 🐍 Set up Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: 3.10
 
-- name: ⚙️ Install system dependencies
-  run: |
-    sudo apt update
-    sudo apt install -y \
-      zip unzip openjdk-17-jdk python3-pip \
-      autoconf libtool pkg-config zlib1g-dev \
-      libncurses5-dev libncursesw5-dev libtinfo5 \
-      cmake libffi-dev libssl-dev
+  - name: ⚙️ Install dependencies
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y \
+        build-essential \
+        git \
+        zip \
+        unzip \
+        openjdk-17-jdk \
+        python3-pip \
+        autoconf \
+        libtool \
+        pkg-config \
+        zlib1g-dev \
+        libncurses5-dev \
+        libncursesw5-dev \
+        libtinfo5 \
+        cmake \
+        libffi-dev \
+        libssl-dev
 
-- name: 📦 Install Buildozer
-  run: |
-    pip install --upgrade pip
-    pip install buildozer cython
+  - name: 📦 Install Python tools
+    run: |
+      python -m pip install --upgrade pip
+      pip install cython==0.29.36 buildozer
 
-- name: 📁 Build with Buildozer
-  run: |
-    buildozer android debug
+  - name: ⚡ Cache buildozer
+    uses: actions/cache@v3
+    with:
+      path: |
+        .buildozer
+        ~/.buildozer
+      key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
 
-- name: 📤 Upload APK
-  uses: actions/upload-artifact@v3
-  with:
-    name: app-debug-apk
-    path: bin/*.apk
-```
-      - name: First build (prepare environment)
-        run: |
-          buildozer android debug || true
+  - name: 📱 Build APK
+    run: |
+      buildozer android debug
 
-      - name: Fix SDK licenses and install tools
-        run: |
-          SDK_PATH="$HOME/.buildozer/android/platform/android-sdk"
-
-          yes | $SDK_PATH/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-          $SDK_PATH/cmdline-tools/latest/bin/sdkmanager \
-            "platform-tools" \
-            "platforms;android-29" \
-            "build-tools;29.0.0"
-
-      - name: Final APK build
-        run: |
-          buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v2
-        with:
-          name: apk
-          path: bin/*.apk
+  - name: 📤 Upload APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: kivy-apk
+      path: bin/*.apk
