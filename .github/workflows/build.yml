@@ -1,3 +1,4 @@
+yaml id="f6l6zd"
 name: Build APK Manual
 
 on:
@@ -33,6 +34,9 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install buildozer cython
+
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
 
       - name: Build APK
         run: |
