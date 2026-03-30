@@ -1,30 +1,60 @@
-name: Android Build
+name: CI
 on:
-workflow_dispatch:
+  push:
+    branches: [ main ]
+
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-20.04
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v3
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
 
-  - name: Install dependencies
-    run: |
-      sudo apt update
-      sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk
+      - name: Get Date
+        id: get-date
+        run: echo "date=$(date -u +'%Y%m%d')" >> $GITHUB_OUTPUT
 
-  - name: Install Buildozer
-    run: |
-      pip3 install --upgrade pip
-      pip3 install buildozer cython==0.29.33
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v2
+        with:
+          path: .buildozer_global
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-  - name: Build APK
-    run: |
-      buildozer android debug
+      - name: Cache Buildozer directory
+        uses: actions/cache@v2
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
-  - name: Upload APK
-    uses: actions/upload-artifact@v3
-    with:
-      name: apk
-      path: bin/*.apk 
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip zip unzip openjdk-11-jdk
+          pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: First build (prepare environment)
+        run: |
+          buildozer android debug || true
+
+      - name: Fix SDK licenses and install tools
+        run: |
+          SDK_PATH="$HOME/.buildozer/android/platform/android-sdk"
+
+          yes | $SDK_PATH/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+          $SDK_PATH/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-29" \
+            "build-tools;29.0.0"
+
+      - name: Final APK build
+        run: |
+          buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: apk
+          path: bin/*.apk
