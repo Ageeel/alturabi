@@ -24,9 +24,11 @@ fullscreen = 0
 # Android
 # --------------------------------
 
-android.api = 33
-android.sdk = 33
+
+android.api = 29
+android.sdk = 29
 android.ndk = 25b
+
 
 # --------------------------------
 # Python / Kivy
