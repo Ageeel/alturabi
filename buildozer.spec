@@ -54,7 +54,6 @@ android.enable_androidx = True
 android.add_libs_armeabi_v7a = libs/*.so
 
 # تسجيل الأخطاء
-log_level = 2
 
 warn_on_root = 1osx.python_version = 3
 
