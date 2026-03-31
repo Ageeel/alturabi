@@ -26,6 +26,9 @@ android.sdk = 30
 android.ndk = 25b
 android.ndk_api = 21
 
+# مهم جداً
+android.build_tools_version = 30.0.3
+
 # --------------------------------
 # Python / Kivy
 # --------------------------------
