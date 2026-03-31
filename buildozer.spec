@@ -42,8 +42,6 @@ android.ndk_api = 21
 # --------------------------------
 
 osx.python_version = 3
-osx.kivy_version = 2.3.0
-
 
 # --------------------------------
 # تحسينات مهمة
@@ -59,8 +57,6 @@ android.add_libs_armeabi_v7a = libs/*.so
 log_level = 2
 
 warn_on_root = 1osx.python_version = 3
-osx.kivy_version = 2.3.1
-
 
 # --------------------------------
 # Buildozer
