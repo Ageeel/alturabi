@@ -1,7 +1,7 @@
 name: Build APK
 
 on:
-  push:
+ push:
     branches: [ main ]
 
 jobs:
@@ -9,22 +9,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: Install dependencies
+    - name: Install system packages
       run: |
         sudo apt update
-        sudo apt install -y zip unzip openjdk-17-jdk python3-pip git
+        sudo apt install -y zip unzip openjdk-17-jdk python3-pip git wget
+
+    - name: Install Python tools
+      run: |
         pip install --upgrade pip
         pip install buildozer cython
 
-    - name: Accept Licenses
+    # 🔥 تثبيت Android SDK يدويًا
+    - name: Setup Android SDK
       run: |
-        yes | sdkmanager --licenses || true
+        mkdir -p $HOME/android-sdk
+        cd $HOME/android-sdk
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+        unzip tools.zip
+        mkdir -p cmdline-tools/latest
+        mv cmdline-tools/* cmdline-tools/latest/ || true
+
+        export ANDROID_HOME=$HOME/android-sdk
+        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+
+        yes | sdkmanager --licenses
+
+        sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
     - name: Build APK
       run: |
+        export ANDROID_HOME=$HOME/android-sdk
+        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
         buildozer android debug
 
     - name: Upload APK
