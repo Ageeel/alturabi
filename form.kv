@@ -1,0 +1,111 @@
+#:import ar tools.ar
+#:import ArabicTextField real.ArabicTextField
+<Content>:
+	orientation: "vertical"
+	size_hint_y: None
+	height: "275dp"
+	padding :0, 0, 0, 30
+	spacing :20 # between save and date picker
+
+	MDGridLayout:
+		cols:2
+		rows:1
+		spacing :20
+
+		MDRectangleFlatButton:
+			id:lender_btn
+			text:app.lender_btn_text
+			font_name:"ar"
+			text_color :(1, 0.35, 0.31, 1)
+			size_hint_x :0.5
+			on_press: root.select_table(self, "lender_btn")
+
+		MDRectangleFlatButton:
+			id:debtor_btn
+			text:app.debtor_btn_text
+			font_name :"ar"
+			text_color :(1, 0.35, 0.31, 1)
+			size_hint_x:0.5
+			on_press: root.select_table(self, "debtor_btn")
+
+	ArabicTextField:
+		id:debtor
+		font_name:"ar"
+		halign:"right"
+		multiline:False
+	
+	MDTextField:
+		id:amount
+		font_name:"ar"
+		multiline:False
+		text_language:"ar"
+		halign:"right"
+		input_filter:'int'
+		input_type:'number'
+		max_text_length: 5
+
+	MDRectangleFlatButton:
+		size_hint_x:1
+		id:payment_btn
+		size_hint_y:None
+		height:30
+		text_color :(1, 0.35, 0.31, 1)
+		font_name :"ar"
+		font_size:35
+		text:ar("تاريخ السداد")
+		on_release :root.open_payment()
+
+	MDRaisedButton:
+		text :app.save_btn_text
+		text_color :"white"
+		font_name:"ar"
+		size_hint_x :1
+		on_release:root.save(debtor, amount)
+
+<Update>:
+	orientation: "vertical"
+	size_hint_y: None
+	height: "230dp"
+	padding :0, 0, 0, 50
+	spacing :30
+
+	MDGridLayout:
+		cols:2
+		rows:1
+		spacing:40
+
+		MDRectangleFlatButton:
+			id:minus
+			text:root.minus_text
+			size_hint_x :0.5
+			text_color :(1, 0.35, 0.31, 1)
+			font_name:"ar"
+			on_press: root.update_operation(self, "-")
+
+		MDRectangleFlatButton:
+			id:plus
+			text:root.plus_text
+			size_hint_x:0.5
+			text_color :(1, 0.35, 0.31, 1)
+			font_name:"ar"
+			on_press: root.update_operation(self, "+")
+
+	ArabicTextField:
+		id:update_debtor
+		halign:"right"
+		text_language:"ar"
+		font_name:"ar"
+	
+	MDTextField:
+		id:update_amount
+		input_filter:'int'
+		input_type:'number'
+		halign:"right"
+		max_text_length: 5
+
+	MDRaisedButton:
+		font_name :"ar"
+		text_color:"white"
+		text :root.save_edit
+		size_hint_x :1
+		on_release:root.update(update_debtor, update_amount)
