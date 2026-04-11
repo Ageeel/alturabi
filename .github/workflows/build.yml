@@ -1,39 +1,28 @@
 name: Build KivyMD App
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # تحديد إصدار ثابت ومستقر من لينكس
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
+      - name: Get Date
+        id: get-date
         run: |
-          sudo apt update
-          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-          python3 -m pip install --upgrade pip
-          python3 -m pip install buildozer Cython==0.29.33
+          echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        shell: bash
 
       - name: Build with Buildozer
-        run: |
-          # نعم لجميع التراخيص تلقائياً
-          yes | buildozer android debug
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: ArtemSerebriakov/buildozer-action@v1
         with:
-          name: Android-Package
+          buildozer_version: master
+          python_version: 3.9
+          command: buildozer android debug
+          
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-${{ steps.get-date.outputs.date }}
           path: bin/*.apk
