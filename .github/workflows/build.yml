@@ -6,33 +6,23 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest # أحدث نسخة مستقرة
 
     steps:
       - name: Checkout Server
         uses: actions/checkout@v4
 
-      - name: Calculate Cache Key
-        id: cache-key
-        run: echo "key=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
-
-      - name: Cache Buildozer Data
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ steps.cache-key.outputs.key }}
-
       - name: Build with Buildozer Docker Action
-        uses: ArtemSerebrennkov/buildozer-action@v1
+        uses: ArtemSerebrennikov/buildozer-action@v1 # تم تصحيح الاسم هنا
         id: buildozer
         with:
           buildozer_version: master
           python_version: 3.11
-          # سيقوم هذا الأمر بتحميل كافة المتطلبات وبناء التطبيق
           command: buildozer android release
+          # سيتكفل الـ Action بتحميل كل شيء داخل الحاوية
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: KivyMD-App-Package
+          name: KivyMD-App
           path: bin/*.apk
