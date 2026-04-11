@@ -1,43 +1,38 @@
-name: CI
+name: Build KivyMD Android App
 on:
   push:
-    branches: [ main ] 
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # تم التحديث لأحدث نسخة مستقرة
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4 # تحديث من v2 إلى v4
+      - name: Checkout Server
+        uses: actions/checkout@v4
 
-      - name: Get Date
-        id: get-date
-        run: |
-          echo "date=$(date -u +'%Y%m%d')" >> $GITHUB_OUTPUT
-        shell: bash
+      - name: Calculate Cache Key
+        id: cache-key
+        run: echo "key=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v4 # تحديث من v2 إلى v4
-        with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
-
-      - name: Cache Buildozer local directory
-        uses: actions/cache@v4 # تحديث من v2 إلى v4
+      - name: Cache Buildozer Data
+        uses: actions/cache@v4
         with:
           path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+          key: ${{ runner.os }}-buildozer-${{ steps.cache-key.outputs.key }}
 
-      - name: Build with Buildozer
-        # ملاحظة: تم تصحيح اسم المستخدم هنا بناءً على الخطأ في الصورة
-        uses: ArtemSBulgakov/buildozer-action@v1.6.1 
+      - name: Build with Buildozer Docker Action
+        uses: ArtemSerebrennkov/buildozer-action@v1
         id: buildozer
         with:
-          command: buildozer android debug
-          buildozer_version: stable
+          buildozer_version: master
+          python_version: 3.11
+          # سيقوم هذا الأمر بتحميل كافة المتطلبات وبناء التطبيق
+          command: buildozer android release
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4 # تحديث ضروري جداً من v2 إلى v4
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: package
-          path: bin/*.apk # هذا المسار أكثر دقة لضمان العثور على الملف
+          name: KivyMD-App-Package
+          path: bin/*.apk
