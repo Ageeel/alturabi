@@ -6,23 +6,22 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # أحدث نسخة مستقرة
+    runs-on: ubuntu-latest # استخدام أحدث نظام متاح
 
     steps:
       - name: Checkout Server
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # تحديث للنسخة الرابعة
 
       - name: Build with Buildozer Docker Action
-        uses: ArtemSerebrennikov/buildozer-action@v1 # تم تصحيح الاسم هنا
+        uses: ArtemSerebrennikov/buildozer-action@v1
         id: buildozer
         with:
           buildozer_version: master
           python_version: 3.11
           command: buildozer android release
-          # سيتكفل الـ Action بتحميل كل شيء داخل الحاوية
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4 # تحديث ضروري جداً من v2 إلى v4
         with:
-          name: KivyMD-App
+          name: KivyMD-App-Package
           path: bin/*.apk
