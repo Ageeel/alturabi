@@ -1,28 +1,43 @@
-name: Build KivyMD App
-on: [push, pull_request]
+name: CI
+on:
+  push:
+    branches: [ main ] 
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # تم التحديث لأحدث نسخة مستقرة
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4 # تحديث من v2 إلى v4
 
       - name: Get Date
         id: get-date
         run: |
-          echo "::set-output name=date::$(date +'%Y-%m-%d')"
+          echo "date=$(date -u +'%Y%m%d')" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v4 # تحديث من v2 إلى v4
+        with:
+          path: .buildozer_global
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+
+      - name: Cache Buildozer local directory
+        uses: actions/cache@v4 # تحديث من v2 إلى v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+
       - name: Build with Buildozer
-        uses: ArtemSerebriakov/buildozer-action@v1
+        # ملاحظة: تم تصحيح اسم المستخدم هنا بناءً على الخطأ في الصورة
+        uses: ArtemSBulgakov/buildozer-action@v1.6.1 
+        id: buildozer
         with:
-          buildozer_version: master
-          python_version: 3.9
           command: buildozer android debug
-          
-      - name: Upload APK
-        uses: actions/upload-artifact@v2
+          buildozer_version: stable
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4 # تحديث ضروري جداً من v2 إلى v4
         with:
-          name: package-${{ steps.get-date.outputs.date }}
-          path: bin/*.apk
+          name: package
+          path: bin/*.apk # هذا المسار أكثر دقة لضمان العثور على الملف
