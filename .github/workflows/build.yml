@@ -36,8 +36,8 @@ jobs:
 
     - name: Build Android APK
       run: |
-        # تشغيل أمر البناء الرسمي بدون --assets لتجنب خطأ التعارض
-        flet build apk
+        # إضافة خيار عدم التفاعل لمنع توقف السيرفر وطلب مدخلات
+        flet build apk --no-interactive
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
