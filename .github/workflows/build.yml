@@ -36,8 +36,8 @@ jobs:
 
     - name: Build Android APK
       run: |
-        # إضافة خيار عدم التفاعل لمنع توقف السيرفر وطلب مدخلات
-        flet build apk --no-interactive
+        # استخدام أمر yes للموافقة التلقائية على أي أسئلة يطرحها Flet أثناء البناء
+        yes | flet build apk
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
