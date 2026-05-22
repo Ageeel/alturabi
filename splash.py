@@ -17,7 +17,7 @@ def show_splash_screen(page: ft.Page, on_timeout_callback):
                     fit=ft.ImageFit.CONTAIN
                 ),
                 ft.Container(height=15),
-                ft.ProgressRing(color="#ec407a", width=35, height=35, stroke_width=3.5),
+                ft.ProgressRing(color="#ec407a", width=30, height=30, stroke_width=3),
                 ft.Container(height=5),
                 ft.Text("جاري التحميل...", color="#b06a7b", size=15, weight=ft.FontWeight.W_500)
             ],
@@ -34,7 +34,7 @@ def show_splash_screen(page: ft.Page, on_timeout_callback):
         page.add(splash_content)
         
         # 2. الانتظار لمدة 3 ثواني
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
         
         # 3. تنظيف الشاشة وتغيير الخلفية للوضع الأصلي للتطبيق
         page.controls.clear()
