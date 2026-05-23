@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. إعداد بيئة جافا
+      # 2. إعداد بيئة جافا (نسخة 17 متوافقة ومستقرة جداً مع Gradle للأندرويد)
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -33,18 +33,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install "flet[cli]"==0.19.0
 
-      # 5. إعداد Flutter في الخلفية لبناء الـ APK
+      # 5. إعداد Flutter مع تحديد نسخة مستقرة (3.16.x) تضمن التوافق التام مع Gradle القديم والحديث لـ Flet 0.19.0
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.16.9' # نسخة ممتازة ومجربة تمنع انهيار الـ Gradle Plugin Block
           channel: 'stable'
 
-      # 6. أمر البناء الصحيح لنسخة 0.19.0 (بدون إضافات زائدة)
+      # 6. تنظيف الكاش والملفات المؤقتة لـ Flet قبل البناء لتجنب أي تعارضات سابقة
+      - name: Clean Flet Cache
+        run: |
+          flet pack main.py --clean || true
+
+      # 7. أمر البناء لملف الـ APK
       - name: Build Android APK
         run: |
           flet build apk
 
-      # 7. رفع ملف الـ APK الناتج كـ Artifact
+      # 8. رفع ملف الـ APK الناتج كـ Artifact
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
