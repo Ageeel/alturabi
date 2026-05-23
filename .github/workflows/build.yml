@@ -36,9 +36,9 @@ jobs:
 
     - name: Build Android APK
       run: |
-        # استخدام أمر yes للموافقة التلقائية على أي أسئلة يطرحها Flet أثناء البناء
-        yes | flet build apk
-
+        # الأمر الافتراضي الآمن لبناء كود التطبيق المباشر المتواجد في المجلد الحالي
+        yes | flet build apk main.py
+        
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
