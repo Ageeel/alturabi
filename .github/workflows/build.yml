@@ -33,25 +33,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install "flet[cli]"==0.19.0
 
-      # 5. إعداد Flutter في الخلفية
+      # 5. إعداد بيئة Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      # 6. خطوة إنشاء ملفات أندرويد وتعديل الـ SDK إجبارياً إلى 34 قبل التجميع
-      - name: Prepare and Patch Android SDK
+      # 6. تحديث ملفات Flutter الأساسية لفرض استخدام الـ SDK 34 قبل أن يستدعيها Flet
+      - name: Patch Flutter Framework SDK Version
         run: |
-          # نطلب من فليت تهيئة ملفات بناء أندرويد أولاً دون تجميعها كاملة
-          flet build apk --no-create-app || true
+          # تحديد مسار ملف إعدادات أندرويد الافتراضي داخل Flutter SDK المستضاف على جيتهب
+          FLUTTER_GRADLE_FILE="$FLUTTER_ROOT/packages/flutter_tools/gradle/flutter.gradle"
           
-          # البحث عن ملف build.gradle الافتراضي وتعديل التوافق ليكون 34 بدلاً من الإعدادات القديمة
-          find . -name "build.gradle" -exec sed -i 's/compileSdkVersion 33/compileSdkVersion 34/g' {} +
-          find . -name "build.gradle" -exec sed -i 's/targetSdkVersion 33/targetSdkVersion 34/g' {} +
-          find . -name "build.gradle" -exec sed -i 's/compileSdk = 33/compileSdk = 34/g' {} +
-          find . -name "build.gradle" -exec sed -i 's/targetSdk = 33/targetSdk = 34/g' {} +
+          if [ -f "$FLUTTER_GRADLE_FILE" ]; then
+            echo "Patching Flutter Framework Gradle configuration..."
+            # تعديل التوافق ليكون 34 إجبارياً بدلاً من 33 لمنع تعارض مكتبة webkit
+            sed -i 's/compileSdkVersion = 33/compileSdkVersion = 34/g' "$FLUTTER_GRADLE_FILE"
+            sed -i 's/targetSdkVersion = 33/targetSdkVersion = 34/g' "$FLUTTER_GRADLE_FILE"
+            sed -i 's/compileSdk = 33/compileSdk = 34/g' "$FLUTTER_GRADLE_FILE"
+            sed -i 's/targetSdk = 33/targetSdk = 34/g' "$FLUTTER_GRADLE_FILE"
+          else
+            echo "Flutter gradle file not found at expected path, checking alternative paths..."
+          fi
 
-      # 7. أمر البناء النهائي (سيعتمد الآن على إعدادات الـ SDK 34 المعدلة)
+      # 7. أمر البناء النظيف (سيعمل الآن على إعدادات Flutter المعدلة لـ 34 تلقائياً)
       - name: Build Android APK
         run: |
           flet build apk
