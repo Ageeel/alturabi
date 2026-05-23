@@ -2,45 +2,51 @@ name: Build Flet Android APK
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main  # سيتم البناء تلقائياً عند رفع الكود على فرع main
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      # 1. سحب ملفات المشروع (main.py والخطوط والشاشة الترحيبية)
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      # 2. إعداد بيئة جافا (مطلوبة أساسياً لبناء حزمة الأندرويد)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '17'
+      # 3. إعداد بيئة بايثون متوافقة
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable'
+      # 4. تثبيت Flet بالنسخة المحددة 0.19.0 مع أدوات الـ CLI
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "flet[cli]"==0.19.0
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flet
+      # 5. إعداد Flutter لأن Flet يعتمد عليه كلياً في الخلفية لبناء الـ APK
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
 
-    - name: Build Android APK
-      run: |
-        # التعديل هنا: تمرير النقطة لتعني بناء المجلد الحالي الذي يحتوي على main.py
-        yes | flet build apk .
+      # 6. أمر البناء المباشر لملف main.py
+      - name: Build Android APK
+        run: |
+          flet build apk --main main.py
 
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: flet-app-apk
-        path: build/apk/*.apk
+      # 7. استخراج ملف الـ APK ورفعه لتتمكن من تحميله من موقع جيتهب
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-flet-app-apk
+          path: build/apk/*.apk
