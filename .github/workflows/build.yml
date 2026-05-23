@@ -1,53 +1,47 @@
-name: Build Flet Android APK
-
+name: Build Android APK
 on:
   push:
-    branches:
-      - main  # أو اسم الفرع الرئيسي لديك
+    branches: [ main ] # سيتم تشغيل البناء تلقائياً عند الدفع لفرع main[span_2](start_span)[span_2](end_span)
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. سحب ملفات المشروع
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4[span_3](start_span)[span_3](end_span)
 
-      # 2. إعداد بيئة جافا (نسخة 17 متوافقة تماماً مع فلاتر 3.16)
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      # 3. إعداد بيئة بايثون
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5[span_4](start_span)[span_4](end_span)
         with:
-          python-version: '3.10'
+          python-version: '3.10[span_5](start_span)'[span_5](end_span)
 
-      # 4. تثبيت Flet بالنسخة المحددة 0.19.0
+      - name: Setup Java
+        uses: actions/setup-java@v4[span_6](start_span)[span_6](end_span)
+        with:
+          distribution: 'temurin[span_7](start_span)'[span_7](end_span)
+          java-version: '17' # الإصدار المتوافق مع أندرويد الحديث[span_8](start_span)[span_8](end_span)
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2[span_9](start_span)[span_9](end_span)
+        with:
+          flutter-version: '3.19.0' # الإصدار المتوافق تماماً مع Flet 0.19.0[span_10](start_span)[span_10](end_span)
+          channel: 'stable[span_11](start_span)'[span_11](end_span)
+
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install "flet[cli]"==0.19.0
+          pip install flet==0.19.0[span_12](start_span)[span_12](end_span)
+          pip install "flet[all][span_13](start_span)"[span_13](end_span)
+          # إذا كان تطبيقك يحتاج مكتبات بايثون أخرى (مثل requests أو pillow) أضفها هنا:
+          # pip install requests
 
-      # 5. تثبيت نسخة فلاتر المتوافقة زمنياً وبنيوياً مع فليت 0.19.0 لمنع خطأ الـ Plugins block
-      - name: Set up Flutter (Fixed Version)
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.16.9' # إجبار السيرفر على عدم استخدام 3.44.0 الحديثة
-          channel: 'stable'
-
-      # 6. أمر البناء النظيف والمباشر
-      - name: Build Android APK
+      - name: Build APK
         run: |
-          flet build apk
+          # نقوم هنا بتمرير ملف نقطة الانطلاق main.py وتحديد مجلّد الـ assets بوضوح
+          # أداة flet ستقوم تلقائياً بتضمين ملف splash.py طالما أنه مستدعى داخل main.py
+          flet build apk main.py --assets assets
 
-      # 7. رفع ملف الـ APK الناتج كـ Artifact للتحميل
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4[span_14](start_span)[span_14](end_span)
         with:
-          name: my-flet-app-apk
-          path: build/apk/*.apk
+          name: pixel-pulse-apk[span_15](start_span)[span_15](end_span)
+          path: build/apk/*.apk[span_16](start_span)[span_16](end_span)
