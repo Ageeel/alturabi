@@ -1,47 +1,43 @@
 name: Build Android APK
 on:
   push:
-    branches: [ main ] # سيتم تشغيل البناء تلقائياً عند الدفع لفرع main[span_2](start_span)[span_2](end_span)
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4[span_3](start_span)[span_3](end_span)
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5[span_4](start_span)[span_4](end_span)
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10[span_5](start_span)'[span_5](end_span)
+          python-version: '3.10'
 
       - name: Setup Java
-        uses: actions/setup-java@v4[span_6](start_span)[span_6](end_span)
+        uses: actions/setup-java@v4
         with:
-          distribution: 'temurin[span_7](start_span)'[span_7](end_span)
-          java-version: '17' # الإصدار المتوافق مع أندرويد الحديث[span_8](start_span)[span_8](end_span)
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2[span_9](start_span)[span_9](end_span)
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # الإصدار المتوافق تماماً مع Flet 0.19.0[span_10](start_span)[span_10](end_span)
-          channel: 'stable[span_11](start_span)'[span_11](end_span)
+          flutter-version: '3.19.0'
+          channel: 'stable'
 
       - name: Install Dependencies
         run: |
-          pip install flet==0.19.0[span_12](start_span)[span_12](end_span)
-          pip install "flet[all][span_13](start_span)"[span_13](end_span)
-          # إذا كان تطبيقك يحتاج مكتبات بايثون أخرى (مثل requests أو pillow) أضفها هنا:
-          # pip install requests
+          pip install flet==0.19.0
+          pip install "flet[all]"
 
       - name: Build APK
         run: |
-          # نقوم هنا بتمرير ملف نقطة الانطلاق main.py وتحديد مجلّد الـ assets بوضوح
-          # أداة flet ستقوم تلقائياً بتضمين ملف splash.py طالما أنه مستدعى داخل main.py
           flet build apk main.py --assets assets
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4[span_14](start_span)[span_14](end_span)
+        uses: actions/upload-artifact@v4
         with:
-          name: pixel-pulse-apk[span_15](start_span)[span_15](end_span)
-          path: build/apk/*.apk[span_16](start_span)[span_16](end_span)
+          name: pixel-pulse-apk
+          path: build/apk/*.apk
