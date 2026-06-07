@@ -20,17 +20,24 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'gradle'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
+          cache: true
 
       - name: Install Dependencies
         run: |
           pip install flet==0.19.0
           pip install "flet[all]"
+
+      # هذه الخطوة تضمن تغيير الاسم في ملف الأندرويد قبل البناء
+      - name: Set Arabic App Name
+        run: |
+          sed -i 's/android:label="[^"]*"/android:label="تطبيق الترابي"/' android/app/src/main/AndroidManifest.xml
 
       - name: Build APK
         run: |
